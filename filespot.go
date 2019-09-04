@@ -130,7 +130,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, data interface{}) (*
 
 func CheckResponse(resp *http.Response) error {
 	code := resp.StatusCode
-	if (code >= 200 && code <= 208) || code == 226 {
+	if code >= 200 && code <= 299 {
 		return nil
 	}
 
