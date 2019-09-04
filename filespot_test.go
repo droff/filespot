@@ -126,3 +126,26 @@ func TestDo(t *testing.T) {
 		t.Errorf("Do response = %v, expected %v", body, expectedBody)
 	}
 }
+
+func TestDoWithErrorResponse(t *testing.T) {
+	setup()
+	defer shutdown()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, `{
+		    "code": 400,
+		    "status": "fail",
+		    "msg_user": "Api ID, timestamp and hash are required.",
+		    "msg_dev": "Check Api id, timestamp and hash.",
+		    "doc": "http://doc.platformcraft.ru/filespot/api/#access",
+		    "advanced": null
+		}`, 400)
+	})
+
+	req, _ := client.NewRequest(ctx, http.MethodGet, "/", nil)
+
+	_, err := client.Do(context.Background(), req, nil)
+	if err == nil {
+		t.Error("Do returns with expected error")
+	}
+}
