@@ -1,8 +1,12 @@
 package filespot
 
 import (
+	"bytes"
 	"context"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
 )
 
 const objectsBasePath = "/1/objects"
@@ -10,6 +14,7 @@ const objectsBasePath = "/1/objects"
 type ObjectsService interface {
 	List(context.Context) ([]Object, *http.Response, error)
 	Get(context.Context, string) (*Object, *http.Response, error)
+	Create(context.Context, *ObjectCreateRequest) (*Object, *http.Response, error)
 	Delete(context.Context, string) (*http.Response, error)
 }
 
@@ -83,6 +88,16 @@ type objectRoot struct {
 	Object *Object `json:"object"`
 }
 
+type ObjectCreateRequest struct {
+	File         string
+	Name         string
+	Private      bool
+	Autoencoding bool
+	Presets      string
+	DelOriginal  bool
+	Autoplayer   bool
+}
+
 func (c ObjectsCli) List(ctx context.Context) ([]Object, *http.Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodGet, objectsBasePath, nil)
 	if err != nil {
@@ -105,6 +120,41 @@ func (c ObjectsCli) Get(ctx context.Context, id string) (*Object, *http.Response
 	if err != nil {
 		return nil, nil, err
 	}
+
+	data := new(objectRoot)
+	resp, err := c.client.Do(ctx, req, data)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return data.Object, resp, err
+}
+
+func (c ObjectsCli) Create(ctx context.Context, objectCreateRequest *ObjectCreateRequest) (*Object, *http.Response, error) {
+	var fw io.Writer
+	var err error
+	method := http.MethodPost
+	u := c.client.requestURL(method, objectsBasePath)
+	buf := new(bytes.Buffer)
+	mp := multipart.NewWriter(buf)
+
+	fw, err = mp.CreateFormFile("File", objectCreateRequest.File)
+	file, _ := os.Open(objectCreateRequest.File)
+	defer file.Close()
+
+	if _, err := io.Copy(fw, file); err != nil {
+		return nil, nil, err
+	}
+
+	mp.Close()
+
+	req, err := http.NewRequest(method, u.String(), buf)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req.Header.Set("Content-Type", mp.FormDataContentType())
+	req.Header.Set("User-Agent", c.client.UserAgent)
 
 	data := new(objectRoot)
 	resp, err := c.client.Do(ctx, req, data)

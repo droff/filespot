@@ -35,7 +35,7 @@ func setup() {
 	client.BaseURL = url
 }
 
-func shutdown() {
+func teardown() {
 	server.Close()
 }
 
@@ -102,7 +102,7 @@ func TestNewRequest(t *testing.T) {
 
 func TestDo(t *testing.T) {
 	setup()
-	defer shutdown()
+	defer teardown()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -129,7 +129,7 @@ func TestDo(t *testing.T) {
 
 func TestDoWithErrorResponse(t *testing.T) {
 	setup()
-	defer shutdown()
+	defer teardown()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{
