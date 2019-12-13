@@ -66,7 +66,8 @@ func (c *Client) requestURL(method, endpointURL string) *url.URL {
 	q.Set("timestamp", strconv.FormatInt(time.Now().Unix(), 10))
 	endpoint.RawQuery = q.Encode()
 
-	data := method + "+" + c.BaseURL.Host + endpoint.String()
+	path, _ := url.QueryUnescape(endpoint.String())
+	data := method + "+" + c.BaseURL.Host + path
 	mac := hmac.New(sha256.New, []byte(c.APIUserKey))
 	mac.Write([]byte(data))
 	sha := hex.EncodeToString(mac.Sum(nil))

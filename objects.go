@@ -138,7 +138,7 @@ func (c ObjectsCli) Create(ctx context.Context, objectCreateRequest *ObjectCreat
 	buf := new(bytes.Buffer)
 	mp := multipart.NewWriter(buf)
 
-	fw, err = mp.CreateFormFile("File", objectCreateRequest.File)
+	fw, err = mp.CreateFormFile("file", objectCreateRequest.File)
 	file, _ := os.Open(objectCreateRequest.File)
 	defer file.Close()
 
