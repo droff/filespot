@@ -229,6 +229,38 @@ func TestObjectsCreate(t *testing.T) {
 	}
 }
 
+func TestObjectUpdate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/1/objects/56787f0c044dfe226b000001", func(w http.ResponseWriter, r *http.Request) {
+		m := http.MethodPut
+		if r.Method != m {
+			t.Errorf("Objects.Update request method = %v, expected %v", r.Method, m)
+		}
+
+		fmt.Fprintf(w, `{
+            "code": 200,
+            "status": "success"
+        }`)
+	})
+
+	objectUpdateRequest := &ObjectUpdateRequest{
+		Name:        "test1.mp4",
+		Folder:      "test1",
+		Description: "this description was updated",
+	}
+	resp, err := client.Objects.Update(ctx, "56787f0c044dfe226b000001", objectUpdateRequest)
+	if err != nil {
+		t.Errorf("Objects.Update returned error: %v", err)
+	}
+
+	expected := http.StatusOK
+	if resp.StatusCode != expected {
+		fmt.Errorf("Objects.Update request code = %v, expected %v", resp.StatusCode, expected)
+	}
+}
+
 func TestObjectsDelete(t *testing.T) {
 	setup()
 	defer teardown()

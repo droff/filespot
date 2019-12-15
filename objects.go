@@ -15,6 +15,7 @@ type ObjectsService interface {
 	List(context.Context) ([]Object, *http.Response, error)
 	Get(context.Context, string) (*Object, *http.Response, error)
 	Create(context.Context, *ObjectCreateRequest) (*Object, *http.Response, error)
+	Update(context.Context, string, *ObjectUpdateRequest) (*http.Response, error)
 	Delete(context.Context, string) (*http.Response, error)
 }
 
@@ -98,6 +99,15 @@ type ObjectCreateRequest struct {
 	Autoplayer   bool
 }
 
+type ObjectUpdateRequest struct {
+	Name        string `json:"name"`
+	Folder      string `json:"folder"`
+	Description string `json:"description"`
+	MaxHeight   int    `json:"max_height"`
+	MaxWidth    int    `json:"max_width"`
+	Private     bool   `json:"private"`
+}
+
 func (c ObjectsCli) List(ctx context.Context) ([]Object, *http.Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodGet, objectsBasePath, nil)
 	if err != nil {
@@ -163,6 +173,20 @@ func (c ObjectsCli) Create(ctx context.Context, objectCreateRequest *ObjectCreat
 	}
 
 	return data.Object, resp, err
+}
+
+func (c ObjectsCli) Update(ctx context.Context, id string, objectUpdateRequest *ObjectUpdateRequest) (*http.Response, error) {
+	endpointURL := objectsBasePath + "/" + id
+
+	req, err := c.client.NewRequest(ctx, http.MethodPut, endpointURL, objectUpdateRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	data := &struct{}{}
+	resp, err := c.client.Do(ctx, req, data)
+
+	return resp, err
 }
 
 func (c ObjectsCli) Delete(ctx context.Context, id string) (*http.Response, error) {
