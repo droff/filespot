@@ -10,8 +10,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/google/go-querystring/query"
 )
 
 const (
@@ -147,4 +150,29 @@ func CheckResponse(resp *http.Response) error {
 func (e *ErrorResponse) Error() string {
 	return fmt.Sprintf("%d %v - %v\n\t%v\n\t%v", e.Code, e.Status, e.MsgUser,
 		e.MsgDev, e.Doc)
+}
+
+func addParams(path string, params interface{}) (string, error) {
+	v := reflect.ValueOf(params)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return path, nil
+	}
+
+	pathURL, err := url.Parse(path)
+	if err != nil {
+		return path, err
+	}
+
+	newPath := pathURL.Query()
+	newParams, err := query.Values(params)
+	if err != nil {
+		return path, err
+	}
+
+	for k, v := range newParams {
+		newPath[k] = v
+	}
+
+	pathURL.RawQuery = newParams.Encode()
+	return pathURL.String(), nil
 }

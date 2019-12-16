@@ -55,7 +55,7 @@ func TestObjectsList(t *testing.T) {
         }`)
 	})
 
-	objects, _, err := client.Objects.List(ctx)
+	objects, _, err := client.Objects.List(ctx, nil)
 	if err != nil {
 		t.Errorf("Objects.List returned error: %v", err)
 	}

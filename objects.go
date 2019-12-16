@@ -12,7 +12,7 @@ import (
 const objectsBasePath = "/1/objects"
 
 type ObjectsService interface {
-	List(context.Context) ([]Object, *http.Response, error)
+	List(context.Context, interface{}) ([]Object, *http.Response, error)
 	Get(context.Context, string) (*Object, *http.Response, error)
 	Create(context.Context, *ObjectCreateRequest) (*Object, *http.Response, error)
 	Update(context.Context, string, *ObjectUpdateRequest) (*http.Response, error)
@@ -108,8 +108,13 @@ type ObjectUpdateRequest struct {
 	Private     bool   `json:"private"`
 }
 
-func (c ObjectsCli) List(ctx context.Context) ([]Object, *http.Response, error) {
-	req, err := c.client.NewRequest(ctx, http.MethodGet, objectsBasePath, nil)
+func (c ObjectsCli) List(ctx context.Context, params interface{}) ([]Object, *http.Response, error) {
+	path, err := addParams(objectsBasePath, params)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := c.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}

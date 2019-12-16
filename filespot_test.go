@@ -149,3 +149,24 @@ func TestDoWithErrorResponse(t *testing.T) {
 		t.Error("Do returns with expected error")
 	}
 }
+
+func TestAddParams(t *testing.T) {
+	pathURL := "/1/objects"
+	params := &struct {
+		Name   string `url:"name,omitempty"`
+		Folder string `url:"folder,omitempty"`
+	}{
+		Name:   "test.mp4",
+		Folder: "tmp",
+	}
+
+	expected := "/1/objects?folder=tmp&name=test.mp4"
+	path, err := addParams(pathURL, params)
+	if err != nil {
+		t.Errorf("addParams returned error = %v", err)
+	}
+
+	if path != expected {
+		t.Errorf("addParams = %v, expected %v", path, expected)
+	}
+}
