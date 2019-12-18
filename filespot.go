@@ -61,25 +61,26 @@ func NewClient(apiUserId, apiUserKey string) *Client {
 	return c
 }
 
+func (c *Client) generateHash(method, path, timestamp string) string {
+	data := fmt.Sprintf("%v+%v%v?apiuserid=%v&timestamp=%v", method, c.BaseURL.Host, path, c.APIUserID, timestamp)
+	mac := hmac.New(sha256.New, []byte(c.APIUserKey))
+	mac.Write([]byte(data))
+
+	return hex.EncodeToString(mac.Sum(nil))
+}
+
 func (c *Client) requestURL(method, endpointURL string) *url.URL {
 	endpoint, _ := url.Parse(endpointURL)
+	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	hash := c.generateHash(method, endpoint.Path, timestamp)
 
 	q := endpoint.Query()
 	q.Set("apiuserid", c.APIUserID)
-	q.Set("timestamp", strconv.FormatInt(time.Now().Unix(), 10))
+	q.Set("timestamp", timestamp)
+	q.Set("hash", hash)
 	endpoint.RawQuery = q.Encode()
 
-	path, _ := url.QueryUnescape(endpoint.String())
-	data := method + "+" + c.BaseURL.Host + path
-	mac := hmac.New(sha256.New, []byte(c.APIUserKey))
-	mac.Write([]byte(data))
-	sha := hex.EncodeToString(mac.Sum(nil))
-
-	q.Set("hash", sha)
-	endpoint.RawQuery = q.Encode()
-	baseURL := c.BaseURL.ResolveReference(endpoint)
-
-	return baseURL
+	return c.BaseURL.ResolveReference(endpoint)
 }
 
 func (c *Client) NewRequest(ctx context.Context, method, endpointURL string, body interface{}) (*http.Request, error) {

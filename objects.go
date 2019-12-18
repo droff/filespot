@@ -108,6 +108,20 @@ type ObjectUpdateRequest struct {
 	Private     bool   `json:"private"`
 }
 
+type ObjectsListParams struct {
+	// Filters
+	Folder      string `url:"folder,omitempty"`
+	Name        string `url:"name,omitempty"`
+	Ext         string `url:"ext,omitempty"`
+	Private     bool   `url:"private,omitempty"`
+	ShowFolders bool   `url:"show_folders,omitempty"`
+
+	// Pagination
+	Limit    int `url:"limit,omitempty"`
+	Start    int `url:"start,omitempty"`
+	Pagingts int `url:"pagingts,omitempty"`
+}
+
 func (c ObjectsCli) List(ctx context.Context, params interface{}) ([]Object, *http.Response, error) {
 	path, err := addParams(objectsBasePath, params)
 	if err != nil {
