@@ -7,6 +7,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
+
+	"github.com/google/go-querystring/query"
 )
 
 const objectsBasePath = "/1/objects"
@@ -90,13 +93,13 @@ type objectRoot struct {
 }
 
 type ObjectCreateRequest struct {
-	File         string
-	Name         string
-	Private      bool
-	Autoencoding bool
-	Presets      string
-	DelOriginal  bool
-	Autoplayer   bool
+	File         string `url:"file"`
+	Name         string `url:"name,omitempty"`
+	Private      bool   `url:"private,omitempty"`
+	Autoencoding bool   `url:"autoencoding,omitempty"`
+	Presets      string `url:"presets,omitempty"`
+	DelOriginal  bool   `url:"del_original,omitempty"`
+	Autoplayer   bool   `url:"autoplayer,omitempty"`
 }
 
 type ObjectUpdateRequest struct {
@@ -159,30 +162,44 @@ func (c ObjectsCli) Get(ctx context.Context, id string) (*Object, *http.Response
 	return data.Object, resp, err
 }
 
-func (c ObjectsCli) Create(ctx context.Context, objectCreateRequest *ObjectCreateRequest) (*Object, *http.Response, error) {
-	var fw io.Writer
-	var err error
-	method := http.MethodPost
-	u := c.client.requestURL(method, objectsBasePath)
+func (o ObjectCreateRequest) Multipart() (*bytes.Buffer, string, error) {
 	buf := new(bytes.Buffer)
 	mp := multipart.NewWriter(buf)
+	defer mp.Close()
 
-	fw, err = mp.CreateFormFile("file", objectCreateRequest.File)
-	file, _ := os.Open(objectCreateRequest.File)
-	defer file.Close()
+	fields, _ := query.Values(o)
+	for k, v := range fields {
+		val := strings.NewReader(v[0])
 
-	if _, err := io.Copy(fw, file); err != nil {
-		return nil, nil, err
+		if k == "file" {
+			fw, _ := mp.CreateFormFile(k, v[0])
+			file, _ := os.Open(v[0])
+			io.Copy(fw, file)
+			file.Close()
+		} else {
+			fw, _ := mp.CreateFormField(k)
+			io.Copy(fw, val)
+		}
 	}
 
-	mp.Close()
+	return buf, mp.FormDataContentType(), nil
+}
+
+func (c ObjectsCli) Create(ctx context.Context, objectCreateRequest *ObjectCreateRequest) (*Object, *http.Response, error) {
+	method := http.MethodPost
+	u := c.client.requestURL(method, objectsBasePath)
+
+	buf, boundary, err := objectCreateRequest.Multipart()
+	if err != nil {
+		return nil, nil, err
+	}
 
 	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req.Header.Set("Content-Type", mp.FormDataContentType())
+	req.Header.Set("Content-Type", boundary)
 	req.Header.Set("User-Agent", c.client.UserAgent)
 
 	data := new(objectRoot)
