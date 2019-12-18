@@ -15,7 +15,7 @@ import (
 const objectsBasePath = "/1/objects"
 
 type ObjectsService interface {
-	List(context.Context, interface{}) ([]Object, *http.Response, error)
+	List(context.Context, interface{}) (*listRoot, *http.Response, error)
 	Get(context.Context, string) (*Object, *http.Response, error)
 	Create(context.Context, *ObjectCreateRequest) (*Object, *http.Response, error)
 	Update(context.Context, string, *ObjectUpdateRequest) (*http.Response, error)
@@ -84,8 +84,11 @@ type ObjectVideoStream struct {
 	Width              uint32  `json:"width"`
 }
 
-type objectsRoot struct {
-	Objects []Object `json:"objects"`
+type listRoot struct {
+	Objects     []Object `json:"objects"`
+	Paging      Paging   `json:"paging"`
+	Count       int      `json:"count"`
+	CountOnPage int      `json:"count_on_page"`
 }
 
 type objectRoot struct {
@@ -125,7 +128,7 @@ type ObjectsListParams struct {
 	Pagingts int `url:"pagingts,omitempty"`
 }
 
-func (c ObjectsCli) List(ctx context.Context, params interface{}) ([]Object, *http.Response, error) {
+func (c ObjectsCli) List(ctx context.Context, params interface{}) (*listRoot, *http.Response, error) {
 	path, err := addParams(objectsBasePath, params)
 	if err != nil {
 		return nil, nil, err
@@ -136,13 +139,13 @@ func (c ObjectsCli) List(ctx context.Context, params interface{}) ([]Object, *ht
 		return nil, nil, err
 	}
 
-	data := new(objectsRoot)
+	data := new(listRoot)
 	resp, err := c.client.Do(ctx, req, data)
 	if err != nil {
 		return nil, resp, err
 	}
 
-	return data.Objects, resp, err
+	return data, resp, err
 }
 
 func (c ObjectsCli) Get(ctx context.Context, id string) (*Object, *http.Response, error) {

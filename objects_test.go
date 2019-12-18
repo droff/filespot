@@ -18,6 +18,14 @@ func TestObjectsList(t *testing.T) {
 		}
 
 		fmt.Fprintf(w, `{
+            "code": 200,
+            "status": "success",
+            "count": 10,
+            "count_on_page": 2,
+            "paging": {
+                "next": "api.platformcraft.ru/1/objects?pagingts=1516189378&limit=2&start=2",
+                "prev": null
+            },
             "objects": [
                 {
                     "id": "56787f0c044dfe226b000001",
@@ -55,7 +63,7 @@ func TestObjectsList(t *testing.T) {
         }`)
 	})
 
-	objects, _, err := client.Objects.List(ctx, nil)
+	root, _, err := client.Objects.List(ctx, nil)
 	if err != nil {
 		t.Errorf("Objects.List returned error: %v", err)
 	}
@@ -95,8 +103,8 @@ func TestObjectsList(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(objects, expected) {
-		t.Errorf("Objects.List = %v, expected %v", objects, expected)
+	if !reflect.DeepEqual(root.Objects, expected) {
+		t.Errorf("Objects.List = %v, expected %v", root.Objects, expected)
 	}
 }
 
@@ -111,6 +119,8 @@ func TestObjectsGet(t *testing.T) {
 		}
 
 		fmt.Fprintf(w, `{
+            "code": 200,
+            "status": "success",
             "object": {
                 "id": "56787f0c044dfe226b000001",
                 "name": "test.mp4",
