@@ -215,7 +215,7 @@ func TestObjectsCreate(t *testing.T) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Errorf("Objects.Create request code = %v, expected %v", resp.StatusCode, http.StatusOK)
+		t.Errorf("Objects.Create request code = %v, expected %v", resp.StatusCode, http.StatusOK)
 	}
 
 	expected := &Object{
@@ -267,7 +267,7 @@ func TestObjectUpdate(t *testing.T) {
 
 	expected := http.StatusOK
 	if resp.StatusCode != expected {
-		fmt.Errorf("Objects.Update request code = %v, expected %v", resp.StatusCode, expected)
+		t.Errorf("Objects.Update request code = %v, expected %v", resp.StatusCode, expected)
 	}
 }
 
@@ -294,6 +294,6 @@ func TestObjectsDelete(t *testing.T) {
 
 	expected := http.StatusOK
 	if resp.StatusCode != expected {
-		fmt.Errorf("Objects.Delete request code = %v, expected %v", resp.StatusCode, expected)
+		t.Errorf("Objects.Delete request code = %v, expected %v", resp.StatusCode, expected)
 	}
 }
