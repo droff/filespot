@@ -36,6 +36,7 @@ type Client struct {
 
 	// Services provides communication with API endpoints
 	Objects ObjectsService
+	Temp    TempService
 }
 
 // ErrorResponse handles API errors
@@ -61,7 +62,9 @@ func NewClient(apiUserId, apiUserKey string) *Client {
 		BaseURL:    baseURL,
 	}
 
+	// Endpoint communications
 	c.Objects = &ObjectsCli{c}
+	c.Temp = &TempCli{c}
 
 	return c
 }

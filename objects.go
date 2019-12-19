@@ -17,7 +17,7 @@ const objectsBasePath = "/1/objects"
 // ObjectsService implements interface with API /objects endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#objects
 type ObjectsService interface {
-	List(context.Context, interface{}) (*listRoot, *http.Response, error)
+	List(context.Context, interface{}) (*objectsRoot, *http.Response, error)
 	Get(context.Context, string) (*Object, *http.Response, error)
 	Create(context.Context, *ObjectCreateRequest) (*Object, *http.Response, error)
 	Update(context.Context, string, *ObjectUpdateRequest) (*http.Response, error)
@@ -92,8 +92,8 @@ type ObjectVideoStream struct {
 	Width              uint32  `json:"width"`
 }
 
-// listRoot represents a List root
-type listRoot struct {
+// objectsRoot represents a List root
+type objectsRoot struct {
 	Objects     []Object `json:"objects"`
 	Paging      Paging   `json:"paging"`
 	Count       int      `json:"count"`
@@ -166,7 +166,7 @@ type ObjectsListParams struct {
 }
 
 // List returns list of all objects (files) in container
-func (c ObjectsCli) List(ctx context.Context, params interface{}) (*listRoot, *http.Response, error) {
+func (c ObjectsCli) List(ctx context.Context, params interface{}) (*objectsRoot, *http.Response, error) {
 	path, err := addParams(objectsBasePath, params)
 	if err != nil {
 		return nil, nil, err
@@ -177,7 +177,7 @@ func (c ObjectsCli) List(ctx context.Context, params interface{}) (*listRoot, *h
 		return nil, nil, err
 	}
 
-	data := new(listRoot)
+	data := new(objectsRoot)
 	resp, err := c.client.Do(ctx, req, data)
 	if err != nil {
 		return nil, resp, err
