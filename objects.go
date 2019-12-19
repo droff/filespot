@@ -14,6 +14,8 @@ import (
 
 const objectsBasePath = "/1/objects"
 
+// ObjectsService implements interface with API /objects endpoint.
+// See https://doc.platformcraft.ru/filespot/api/en/#objects
 type ObjectsService interface {
 	List(context.Context, interface{}) (*listRoot, *http.Response, error)
 	Get(context.Context, string) (*Object, *http.Response, error)
@@ -22,10 +24,12 @@ type ObjectsService interface {
 	Delete(context.Context, string) (*http.Response, error)
 }
 
+// ObjectsCli handles communication with API
 type ObjectsCli struct {
 	client *Client
 }
 
+// Object represents a platformcraft Object
 type Object struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
@@ -46,12 +50,14 @@ type Object struct {
 	Description  string          `json:"description"`
 }
 
+// ObjectAdvanced of Object
 type ObjectAdvanced struct {
 	AudioStreams []ObjectAudioStream `json:"audio_streams"`
 	Format       *ObjectFormat       `json:"format"`
 	VideoStreams []ObjectVideoStream `json:"video_streams"`
 }
 
+// ObjectAudioStream of Object
 type ObjectAudioStream struct {
 	BitRate       uint32  `json:"bit_rate"`
 	ChannelLayout string  `json:"channel_layout"`
@@ -63,6 +69,7 @@ type ObjectAudioStream struct {
 	SampleRate    uint32  `json:"sample_rate"`
 }
 
+// ObjectFormat of Object
 type ObjectFormat struct {
 	BitRate        uint32  `json:"bit_rate"`
 	Duration       float32 `json:"duration"`
@@ -71,6 +78,7 @@ type ObjectFormat struct {
 	NBStreams      uint32  `json:"nb_streams"`
 }
 
+// ObjectVideoStream of Object
 type ObjectVideoStream struct {
 	BitRate            uint32  `json:"bit_rate"`
 	CodecName          string  `json:"codec_name"`
@@ -84,6 +92,7 @@ type ObjectVideoStream struct {
 	Width              uint32  `json:"width"`
 }
 
+// listRoot represents a List root
 type listRoot struct {
 	Objects     []Object `json:"objects"`
 	Paging      Paging   `json:"paging"`
@@ -91,10 +100,12 @@ type listRoot struct {
 	CountOnPage int      `json:"count_on_page"`
 }
 
+// objectRoot represents a Get root
 type objectRoot struct {
 	Object *Object `json:"object"`
 }
 
+// ObjectCreateRequest identifies Object for the Create request
 type ObjectCreateRequest struct {
 	File         string `url:"file"`
 	Name         string `url:"name,omitempty"`
@@ -105,66 +116,7 @@ type ObjectCreateRequest struct {
 	Autoplayer   bool   `url:"autoplayer,omitempty"`
 }
 
-type ObjectUpdateRequest struct {
-	Name        string `json:"name"`
-	Folder      string `json:"folder"`
-	Description string `json:"description"`
-	MaxHeight   int    `json:"max_height"`
-	MaxWidth    int    `json:"max_width"`
-	Private     bool   `json:"private"`
-}
-
-type ObjectsListParams struct {
-	// Filters
-	Folder      string `url:"folder,omitempty"`
-	Name        string `url:"name,omitempty"`
-	Ext         string `url:"ext,omitempty"`
-	Private     bool   `url:"private,omitempty"`
-	ShowFolders bool   `url:"show_folders,omitempty"`
-
-	// Pagination
-	Limit    int `url:"limit,omitempty"`
-	Start    int `url:"start,omitempty"`
-	Pagingts int `url:"pagingts,omitempty"`
-}
-
-func (c ObjectsCli) List(ctx context.Context, params interface{}) (*listRoot, *http.Response, error) {
-	path, err := addParams(objectsBasePath, params)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := c.client.NewRequest(ctx, http.MethodGet, path, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	data := new(listRoot)
-	resp, err := c.client.Do(ctx, req, data)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return data, resp, err
-}
-
-func (c ObjectsCli) Get(ctx context.Context, id string) (*Object, *http.Response, error) {
-	endpointURL := objectsBasePath + "/" + id
-
-	req, err := c.client.NewRequest(ctx, http.MethodGet, endpointURL, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	data := new(objectRoot)
-	resp, err := c.client.Do(ctx, req, data)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return data.Object, resp, err
-}
-
+// Multipart represents Object as multipart data
 func (o ObjectCreateRequest) Multipart() (*bytes.Buffer, string, error) {
 	buf := new(bytes.Buffer)
 	mp := multipart.NewWriter(buf)
@@ -188,6 +140,71 @@ func (o ObjectCreateRequest) Multipart() (*bytes.Buffer, string, error) {
 	return buf, mp.FormDataContentType(), nil
 }
 
+// ObjectUpdateRequest identifies Object for the Update request
+type ObjectUpdateRequest struct {
+	Name        string `json:"name"`
+	Folder      string `json:"folder"`
+	Description string `json:"description"`
+	MaxHeight   int    `json:"max_height"`
+	MaxWidth    int    `json:"max_width"`
+	Private     bool   `json:"private"`
+}
+
+// ObjectsListParams identifies as query params of List request
+type ObjectsListParams struct {
+	// Filters
+	Folder      string `url:"folder,omitempty"`
+	Name        string `url:"name,omitempty"`
+	Ext         string `url:"ext,omitempty"`
+	Private     bool   `url:"private,omitempty"`
+	ShowFolders bool   `url:"show_folders,omitempty"`
+
+	// Pagination
+	Limit    int `url:"limit,omitempty"`
+	Start    int `url:"start,omitempty"`
+	Pagingts int `url:"pagingts,omitempty"`
+}
+
+// List returns list of all objects (files) in container
+func (c ObjectsCli) List(ctx context.Context, params interface{}) (*listRoot, *http.Response, error) {
+	path, err := addParams(objectsBasePath, params)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := c.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	data := new(listRoot)
+	resp, err := c.client.Do(ctx, req, data)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return data, resp, err
+}
+
+// Get Object
+func (c ObjectsCli) Get(ctx context.Context, id string) (*Object, *http.Response, error) {
+	endpointURL := objectsBasePath + "/" + id
+
+	req, err := c.client.NewRequest(ctx, http.MethodGet, endpointURL, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	data := new(objectRoot)
+	resp, err := c.client.Do(ctx, req, data)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return data.Object, resp, err
+}
+
+// Create Object
 func (c ObjectsCli) Create(ctx context.Context, objectCreateRequest *ObjectCreateRequest) (*Object, *http.Response, error) {
 	method := http.MethodPost
 	u := c.client.requestURL(method, objectsBasePath)
@@ -214,6 +231,7 @@ func (c ObjectsCli) Create(ctx context.Context, objectCreateRequest *ObjectCreat
 	return data.Object, resp, err
 }
 
+// Update Object
 func (c ObjectsCli) Update(ctx context.Context, id string, objectUpdateRequest *ObjectUpdateRequest) (*http.Response, error) {
 	endpointURL := objectsBasePath + "/" + id
 
@@ -228,6 +246,7 @@ func (c ObjectsCli) Update(ctx context.Context, id string, objectUpdateRequest *
 	return resp, err
 }
 
+// Delete Object
 func (c ObjectsCli) Delete(ctx context.Context, id string) (*http.Response, error) {
 	endpointURL := objectsBasePath + "/" + id
 

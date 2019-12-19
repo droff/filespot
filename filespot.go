@@ -24,17 +24,21 @@ const (
 	APIBaseURL     = "https://api.platformcraft.ru/1/"
 )
 
+// Client manages communication with platformcraft API
 type Client struct {
 	client    *http.Client
 	UserAgent string
 	BaseURL   *url.URL
 
+	// Authentication
 	APIUserID  string
 	APIUserKey string
 
+	// Services provides communication with API endpoints
 	Objects ObjectsService
 }
 
+// ErrorResponse handles API errors
 type ErrorResponse struct {
 	Response *http.Response
 	Code     uint32 `json:"code"`
@@ -45,6 +49,7 @@ type ErrorResponse struct {
 	Advanced string `json:"advanced"`
 }
 
+// NewClient returns client API
 func NewClient(apiUserId, apiUserKey string) *Client {
 	baseURL, _ := url.Parse(APIBaseURL)
 
@@ -61,6 +66,7 @@ func NewClient(apiUserId, apiUserKey string) *Client {
 	return c
 }
 
+// generateHash returns HMAC hash-sum for authentication
 func (c *Client) generateHash(method, path, timestamp string) string {
 	data := fmt.Sprintf("%v+%v%v?apiuserid=%v&timestamp=%v", method, c.BaseURL.Host, path, c.APIUserID, timestamp)
 	mac := hmac.New(sha256.New, []byte(c.APIUserKey))
@@ -69,6 +75,7 @@ func (c *Client) generateHash(method, path, timestamp string) string {
 	return hex.EncodeToString(mac.Sum(nil))
 }
 
+// requestURL returns URL with formated request
 func (c *Client) requestURL(method, endpointURL string) *url.URL {
 	endpoint, _ := url.Parse(endpointURL)
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
@@ -83,6 +90,7 @@ func (c *Client) requestURL(method, endpointURL string) *url.URL {
 	return c.BaseURL.ResolveReference(endpoint)
 }
 
+// NewRequest creates a API request with HTTP method, endpoint path and payload
 func (c *Client) NewRequest(ctx context.Context, method, endpointURL string, body interface{}) (*http.Request, error) {
 	u := c.requestURL(method, endpointURL)
 
@@ -105,11 +113,13 @@ func (c *Client) NewRequest(ctx context.Context, method, endpointURL string, bod
 	return req, nil
 }
 
+// DoClientRequest submits request
 func DoClientRequest(ctx context.Context, c *Client, req *http.Request) (*http.Response, error) {
 	req = req.WithContext(ctx)
 	return c.client.Do(req)
 }
 
+// Do sends request and returns API response
 func (c *Client) Do(ctx context.Context, req *http.Request, data interface{}) (*http.Response, error) {
 	resp, err := DoClientRequest(ctx, c, req)
 	if err != nil {
@@ -133,6 +143,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, data interface{}) (*
 	return resp, err
 }
 
+// CheckResponse checks response for errors
 func CheckResponse(resp *http.Response) error {
 	code := resp.StatusCode
 	if code >= 200 && code <= 299 {
@@ -148,11 +159,13 @@ func CheckResponse(resp *http.Response) error {
 	return errorResponse
 }
 
+// Error returns formated error
 func (e *ErrorResponse) Error() string {
 	return fmt.Sprintf("%d %v - %v\n\t%v\n\t%v", e.Code, e.Status, e.MsgUser,
 		e.MsgDev, e.Doc)
 }
 
+// addParams returns path with query params
 func addParams(path string, params interface{}) (string, error) {
 	v := reflect.ValueOf(params)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
