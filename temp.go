@@ -60,6 +60,7 @@ type linksRoot struct {
 	Count int    `json:"count"`
 }
 
+// linkRoot represents a Get root
 type linkRoot struct {
 	Link *Link `json:"link"`
 }
