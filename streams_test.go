@@ -248,3 +248,96 @@ func TestStreamsStop(t *testing.T) {
 		t.Errorf("Streams.Stop = %v, expected %v", data.Files, expected)
 	}
 }
+
+func TestStreamsCreateSchedule(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/1/streams/rec/schedule/new/56cec7e2fa63afd0f843567d", func(w http.ResponseWriter, r *http.Request) {
+		m := http.MethodPost
+		if r.Method != m {
+			t.Errorf("Streams.CreateSchedule request method = %v, expected %v", r.Method, m)
+		}
+
+		fmt.Fprintf(w, `{
+            "code": 200,
+            "status": "success",
+            "record_id": "5624cd5ac9a492f8b979b63f"
+        }`)
+	})
+
+	recordID, _, err := client.Streams.CreateSchedule(ctx, "56cec7e2fa63afd0f843567d")
+	if err != nil {
+		t.Errorf("Streams.CreateSchedule returned error: %v", err)
+	}
+
+	expected := "5624cd5ac9a492f8b979b63f"
+
+	if recordID != expected {
+		t.Errorf("Streams.CreateSchedule = %v, expected %v", recordID, expected)
+	}
+}
+
+func TestStreamsRec(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/1/streams/rec/5624cd5ac9a492f8b979b63f", func(w http.ResponseWriter, r *http.Request) {
+		m := http.MethodGet
+		if r.Method != m {
+			t.Errorf("Streams.Rec request method = %v, expected %v", r.Method, m)
+		}
+
+		fmt.Fprintf(w, `{
+            "code": 200,
+            "status": "success",
+            "record": {
+                "status": "Finish",
+                "files": ["5bd37808534b441c4acf7415"]
+            }
+        }`)
+	})
+
+	record, _, err := client.Streams.Rec(ctx, "5624cd5ac9a492f8b979b63f")
+	if err != nil {
+		t.Errorf("Streams.Rec returned error: %v", err)
+	}
+
+	expected := &Record{
+		Status: "Finish",
+		Files: []string{
+			"5bd37808534b441c4acf7415",
+		},
+	}
+
+	if !reflect.DeepEqual(record, expected) {
+		t.Errorf("Streams.Rec = %v, expected %v", record, expected)
+	}
+}
+
+func TestStreamsDeleteSchedule(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/1/streams/rec/schedule/del/56cec7e2fa63afd0f843567d/5624cd5ac9a492f8b979b63f", func(w http.ResponseWriter, r *http.Request) {
+		m := http.MethodDelete
+		if r.Method != m {
+			t.Errorf("Streams.DeleteSchedule request method = %v, expected %v", r.Method, m)
+		}
+
+		fmt.Fprintf(w, `{
+            "code": 200,
+            "status": "success"
+        }`)
+	})
+
+	resp, err := client.Streams.DeleteSchedule(ctx, "56cec7e2fa63afd0f843567d", "5624cd5ac9a492f8b979b63f")
+	if err != nil {
+		t.Errorf("Streams.DeleteSchedule returned error: %v", err)
+	}
+
+	expected := http.StatusOK
+	if resp.StatusCode != expected {
+		t.Errorf("Streams.DeleteSchedule request code = %v, expected %v", resp.StatusCode, expected)
+	}
+}

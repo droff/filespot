@@ -16,6 +16,9 @@ type StreamsService interface {
 	Delete(context.Context, string) (*http.Response, error)
 	Start(context.Context, string, *StreamStartRequest) (*http.Response, error)
 	Stop(context.Context, string) (*stopRoot, *http.Response, error)
+	CreateSchedule(context.Context, string) (string, *http.Response, error)
+	Rec(context.Context, string) (*Record, *http.Response, error)
+	DeleteSchedule(context.Context, string, string) (*http.Response, error)
 }
 
 // StreamsCli handles communication with API
@@ -47,6 +50,12 @@ type File struct {
 	Status       string `json:"status"`
 }
 
+// Record represents a platformcraft Record
+type Record struct {
+	Status string   `json:"status"`
+	Files  []string `json:"files"`
+}
+
 // streamsRoot represents a List root
 type streamsRoot struct {
 	Streams []Stream `json:"streams"`
@@ -57,8 +66,14 @@ type streamRoot struct {
 	Stream *Stream `json:"stream"`
 }
 
+// stopRoot represents a Stop root
 type stopRoot struct {
 	Files []File `json:"files"`
+}
+
+// recordRoot represents a Rec root
+type recordRoot struct {
+	Record *Record `json:"record"`
 }
 
 // StreamCreateRequest identifies Stream for the Create request
@@ -174,4 +189,60 @@ func (c StreamsCli) Stop(ctx context.Context, id string) (*stopRoot, *http.Respo
 	}
 
 	return data, resp, err
+}
+
+// CreateSchedule returns record_id
+func (c StreamsCli) CreateSchedule(ctx context.Context, id string) (string, *http.Response, error) {
+	endpointURL := streamsBasePath + "/rec/schedule/new/" + id
+
+	req, err := c.client.NewRequest(ctx, http.MethodPost, endpointURL, nil)
+	if err != nil {
+		return "", nil, err
+	}
+
+	data := &struct {
+		RecordID string `json:"record_id"`
+	}{}
+	resp, err := c.client.Do(ctx, req, data)
+	if err != nil {
+		return "", resp, err
+	}
+
+	return data.RecordID, resp, err
+}
+
+// Rec returns Record
+func (c StreamsCli) Rec(ctx context.Context, id string) (*Record, *http.Response, error) {
+	endpointURL := streamsBasePath + "/rec/" + id
+
+	req, err := c.client.NewRequest(ctx, http.MethodGet, endpointURL, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	data := new(recordRoot)
+	resp, err := c.client.Do(ctx, req, data)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return data.Record, resp, err
+}
+
+// DeleteSchedule deletes record
+func (c StreamsCli) DeleteSchedule(ctx context.Context, stream_id string, record_id string) (*http.Response, error) {
+	endpointURL := streamsBasePath + "/rec/schedule/del/" + stream_id + "/" + record_id
+
+	req, err := c.client.NewRequest(ctx, http.MethodDelete, endpointURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	data := &struct{}{}
+	resp, err := c.client.Do(ctx, req, data)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, err
 }
