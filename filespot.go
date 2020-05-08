@@ -38,6 +38,7 @@ type Client struct {
 	Objects ObjectsService
 	Temp    TempService
 	Streams StreamsService
+	Players PlayersService
 }
 
 // ErrorResponse handles API errors
@@ -67,6 +68,7 @@ func NewClient(apiUserId, apiUserKey string) *Client {
 	c.Objects = &ObjectsCli{c}
 	c.Temp = &TempCli{c}
 	c.Streams = &StreamsCli{c}
+	c.Players = &PlayersCli{c}
 
 	return c
 }
