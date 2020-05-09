@@ -10,11 +10,7 @@ const playersBasePath = "/1/players"
 // PlayersService implements interface with API /players endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#players
 type PlayersService interface {
-	// List(context.Context, interface{}) (*linksRoot, *http.Response, error)
-	// Get(context.Context, string) (*Link, *http.Response, error)
 	Create(context.Context, *PlayerCreateRequest) (*Player, *http.Response, error)
-	// Delete(context.Context, string) (*http.Response, error)
-	// Secure(context.Context, string, *SecureLinkRequest) (*SecureLink, *http.Response, error)
 }
 
 // PlayersCli handles communication with API
