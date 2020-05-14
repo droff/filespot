@@ -35,13 +35,14 @@ type Client struct {
 	APIUserKey string
 
 	// Services provides communication with API endpoints
-	Objects       ObjectsService
-	Temp          TempService
-	Streams       StreamsService
-	Players       PlayersService
-	Download      DownloadService
-	DownloadTasks DownloadTasksService
-	Transcoder    TranscoderService
+	Objects         ObjectsService
+	Temp            TempService
+	Streams         StreamsService
+	Players         PlayersService
+	Download        DownloadService
+	DownloadTasks   DownloadTasksService
+	Transcoder      TranscoderService
+	TranscoderTasks TranscoderTasksService
 }
 
 // ErrorResponse handles API errors
@@ -75,6 +76,7 @@ func NewClient(apiUserId, apiUserKey string) *Client {
 	c.Download = &DownloadCli{c}
 	c.DownloadTasks = &DownloadTasksCli{c}
 	c.Transcoder = &TranscoderCli{c}
+	c.TranscoderTasks = &TranscoderTasksCli{c}
 
 	return c
 }
