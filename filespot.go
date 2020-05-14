@@ -43,6 +43,7 @@ type Client struct {
 	DownloadTasks   DownloadTasksService
 	Transcoder      TranscoderService
 	TranscoderTasks TranscoderTasksService
+	Storage         StorageService
 }
 
 // ErrorResponse handles API errors
@@ -77,6 +78,7 @@ func NewClient(apiUserId, apiUserKey string) *Client {
 	c.DownloadTasks = &DownloadTasksCli{c}
 	c.Transcoder = &TranscoderCli{c}
 	c.TranscoderTasks = &TranscoderTasksCli{c}
+	c.Storage = &StorageCli{c}
 
 	return c
 }
