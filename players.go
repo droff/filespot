@@ -44,7 +44,10 @@ type Tags []string
 
 // playersRoot respresents a List root
 type playersRoot struct {
-	Players []Player `json:"players"`
+	Players     []Player `json:"players"`
+	Paging      Paging   `json:"paging"`
+	Count       int      `json:"count"`
+	CountOnPage int      `json:"count_on_page"`
 }
 
 // playerRoot represents a Get root
