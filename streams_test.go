@@ -42,13 +42,13 @@ func TestStreamsList(t *testing.T) {
 		},
 	}
 
-	root, _, err := client.Streams.List(ctx)
+	streams, _, err := client.Streams.List(ctx)
 	if err != nil {
 		t.Errorf("Streams.List returned error: %v", err)
 	}
 
-	if !reflect.DeepEqual(root.Streams, expected) {
-		t.Errorf("Streams.List = %v, expected %v", root.Streams, expected)
+	if !reflect.DeepEqual(streams, expected) {
+		t.Errorf("Streams.List = %v, expected %v", streams, expected)
 	}
 }
 
@@ -234,18 +234,18 @@ func TestStreamsStop(t *testing.T) {
 			LatestUpdate: "",
 			ResourceURL:  "api.platformcraft.ru/objects/56f19106534b44355afd96e1",
 			Video:        "video.platformcraft.ru/56f19106534b44355afd96e1",
-			CDN_URL:      "cdn.platformcraft.ru/test/records/test20160322.mp4",
+			CDNURL:       "cdn.platformcraft.ru/test/records/test20160322.mp4",
 			Status:       "ok",
 		},
 	}
 
-	data, _, err := client.Streams.Stop(ctx, "56f19106534b44355afd96e1")
+	files, _, err := client.Streams.Stop(ctx, "56f19106534b44355afd96e1")
 	if err != nil {
 		t.Errorf("Streams.Stop returned error: %v", err)
 	}
 
-	if !reflect.DeepEqual(data.Files, expected) {
-		t.Errorf("Streams.Stop = %v, expected %v", data.Files, expected)
+	if !reflect.DeepEqual(files, expected) {
+		t.Errorf("Streams.Stop = %v, expected %v", files, expected)
 	}
 }
 

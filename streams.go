@@ -10,12 +10,12 @@ const streamsBasePath = "/1/streams"
 // StreamsService implements interface with API /streams endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#streams
 type StreamsService interface {
-	List(context.Context) (*streamsRoot, *http.Response, error)
+	List(context.Context) ([]Stream, *http.Response, error)
 	Get(context.Context, string) (*Stream, *http.Response, error)
 	Create(context.Context, *StreamCreateRequest) (*Stream, *http.Response, error)
 	Delete(context.Context, string) (*http.Response, error)
 	Start(context.Context, string, *StreamStartRequest) (*http.Response, error)
-	Stop(context.Context, string) (*stopRoot, *http.Response, error)
+	Stop(context.Context, string) ([]File, *http.Response, error)
 	CreateSchedule(context.Context, string) (string, *http.Response, error)
 	Rec(context.Context, string) (*Record, *http.Response, error)
 	DeleteSchedule(context.Context, string, string) (*http.Response, error)
@@ -46,7 +46,7 @@ type File struct {
 	LatestUpdate string `json:"latest_update"`
 	ResourceURL  string `json:"resource_url"`
 	Video        string `json:"video"`
-	CDN_URL      string `json:"cdn_url"`
+	CDNURL       string `json:"cdn_url"`
 	Status       string `json:"status"`
 }
 
@@ -88,7 +88,7 @@ type StreamStartRequest struct {
 }
 
 // List of Streams
-func (c StreamsCli) List(ctx context.Context) (*streamsRoot, *http.Response, error) {
+func (c StreamsCli) List(ctx context.Context) ([]Stream, *http.Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodGet, streamsBasePath, nil)
 	if err != nil {
 		return nil, nil, err
@@ -100,7 +100,7 @@ func (c StreamsCli) List(ctx context.Context) (*streamsRoot, *http.Response, err
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Streams, resp, err
 }
 
 // Get Stream
@@ -174,7 +174,7 @@ func (c StreamsCli) Start(ctx context.Context, id string, streamStartRequest *St
 }
 
 // Stop Stream
-func (c StreamsCli) Stop(ctx context.Context, id string) (*stopRoot, *http.Response, error) {
+func (c StreamsCli) Stop(ctx context.Context, id string) ([]File, *http.Response, error) {
 	endpointURL := streamsBasePath + "/rec/instant/stop/" + id
 
 	req, err := c.client.NewRequest(ctx, http.MethodPost, endpointURL, nil)
@@ -188,7 +188,7 @@ func (c StreamsCli) Stop(ctx context.Context, id string) (*stopRoot, *http.Respo
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Files, resp, err
 }
 
 // CreateSchedule returns record_id
@@ -230,8 +230,8 @@ func (c StreamsCli) Rec(ctx context.Context, id string) (*Record, *http.Response
 }
 
 // DeleteSchedule deletes record
-func (c StreamsCli) DeleteSchedule(ctx context.Context, stream_id string, record_id string) (*http.Response, error) {
-	endpointURL := streamsBasePath + "/rec/schedule/del/" + stream_id + "/" + record_id
+func (c StreamsCli) DeleteSchedule(ctx context.Context, streamID string, recordID string) (*http.Response, error) {
+	endpointURL := streamsBasePath + "/rec/schedule/del/" + streamID + "/" + recordID
 
 	req, err := c.client.NewRequest(ctx, http.MethodDelete, endpointURL, nil)
 	if err != nil {
