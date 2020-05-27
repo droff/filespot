@@ -10,7 +10,7 @@ const transcoderBasePath = "/1/transcoder"
 // TranscoderService implements interface with API /transcoder endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#transcoder
 type TranscoderService interface {
-	Presets(context.Context) (*presetsRoot, *http.Response, error)
+	Presets(context.Context) ([]Preset, *http.Response, error)
 	Create(context.Context, string, *TranscoderCreateRequest) (*Transcoder, *http.Response, error)
 	Concat(context.Context, *TranscoderConcatRequest) (*Transcoder, *http.Response, error)
 	HLS(context.Context, string, *TranscoderHLSRequest) (*Transcoder, *http.Response, error)
@@ -34,7 +34,7 @@ type Preset struct {
 	Container  string                     `json:"container"`
 	Video      map[string]string          `json:"video"`
 	Audio      map[string]string          `json:"audio"`
-	Watermarks map[string]WatermarkParams `json:"watermarks"`
+	Watermarks map[string]watermarkParams `json:"watermarks"`
 }
 
 // presetsRoot represents a Presets root
@@ -47,7 +47,7 @@ type presetsRoot struct {
 type TranscoderCreateRequest struct {
 	Presets     []string  `json:"presets"`
 	Path        string    `json:"path"`
-	Watermarks  Watermark `json:"watermarks"`
+	Watermarks  watermark `json:"watermarks"`
 	DelOriginal bool      `json:"del_original"`
 	Start       int       `json:"start"`
 	Duration    int       `json:"duration"`
@@ -66,11 +66,11 @@ type TranscoderHLSRequest struct {
 	SegmentDuration int      `json:"segment_duration"`
 }
 
-type Watermark map[string]string
-type WatermarkParams map[string]string
+type watermark map[string]string
+type watermarkParams map[string]string
 
 // Presets Transcoder
-func (c TranscoderCli) Presets(ctx context.Context) (*presetsRoot, *http.Response, error) {
+func (c TranscoderCli) Presets(ctx context.Context) ([]Preset, *http.Response, error) {
 	endpointURL := transcoderBasePath + "/presets"
 
 	req, err := c.client.NewRequest(ctx, http.MethodGet, endpointURL, nil)
@@ -84,7 +84,7 @@ func (c TranscoderCli) Presets(ctx context.Context) (*presetsRoot, *http.Respons
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Presets, resp, err
 }
 
 // Create Transcoder

@@ -123,7 +123,7 @@ func TestTranscoderPresets(t *testing.T) {
         }`)
 	})
 
-	root, _, err := client.Transcoder.Presets(ctx)
+	presets, _, err := client.Transcoder.Presets(ctx)
 	if err != nil {
 		t.Errorf("Transcoder.Presets returned error: %v", err)
 	}
@@ -146,7 +146,7 @@ func TestTranscoderPresets(t *testing.T) {
 				"sample_rate": "44100",
 				"channels":    "2",
 			},
-			Watermarks: map[string]WatermarkParams{
+			Watermarks: map[string]watermarkParams{
 				"BottomLeft": {
 					"horizontal_align":  "Left",
 					"horizontal_offset": "10%",
@@ -229,8 +229,8 @@ func TestTranscoderPresets(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(root.Presets, expected) {
-		t.Errorf("Transcoder.Presets = %v, expected %v", root.Presets, expected)
+	if !reflect.DeepEqual(presets, expected) {
+		t.Errorf("Transcoder.Presets = %v, expected %v", presets, expected)
 	}
 }
 
@@ -256,7 +256,7 @@ func TestTranscoderCreate(t *testing.T) {
 	transcoderCreateRequest := &TranscoderCreateRequest{
 		Presets:     []string{"5676a27cf9cb101634000002", "5676a27cf9cb101634000003"},
 		Path:        "/test",
-		Watermarks:  Watermark{"Full": "5adfa939534b446a607d9937"},
+		Watermarks:  watermark{"Full": "5adfa939534b446a607d9937"},
 		DelOriginal: false,
 	}
 
