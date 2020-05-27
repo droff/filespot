@@ -54,13 +54,13 @@ func TestTempList(t *testing.T) {
 	params := &TempListParams{
 		Secure: true,
 	}
-	root, _, err := client.Temp.List(ctx, params)
+	links, _, err := client.Temp.List(ctx, params)
 	if err != nil {
 		t.Errorf("Temp.List returned error: %v", err)
 	}
 
-	if !reflect.DeepEqual(root.Links, expected) {
-		t.Errorf("Temp.List = %v, expected %v", root.Links, expected)
+	if !reflect.DeepEqual(links, expected) {
+		t.Errorf("Temp.List = %v, expected %v", links, expected)
 	}
 }
 

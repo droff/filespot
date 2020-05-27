@@ -10,7 +10,7 @@ const tempBasePath = "/1/temp"
 // TempService implements interface with API /temp endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#temp
 type TempService interface {
-	List(context.Context, interface{}) (*linksRoot, *http.Response, error)
+	List(context.Context, interface{}) ([]Link, *http.Response, error)
 	Get(context.Context, string) (*Link, *http.Response, error)
 	Create(context.Context, *LinkCreateRequest) (*Link, *http.Response, error)
 	Delete(context.Context, string) (*http.Response, error)
@@ -73,7 +73,7 @@ type TempListParams struct {
 }
 
 // List of Links
-func (c TempCli) List(ctx context.Context, params interface{}) (*linksRoot, *http.Response, error) {
+func (c TempCli) List(ctx context.Context, params interface{}) ([]Link, *http.Response, error) {
 	path, err := addParams(tempBasePath, params)
 	if err != nil {
 		return nil, nil, err
@@ -90,7 +90,7 @@ func (c TempCli) List(ctx context.Context, params interface{}) (*linksRoot, *htt
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Links, resp, err
 }
 
 // Get Link
