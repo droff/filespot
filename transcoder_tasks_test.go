@@ -56,7 +56,7 @@ func TestTranscoderTasksList(t *testing.T) {
         }`)
 	})
 
-	root, _, err := client.TranscoderTasks.List(ctx)
+	tasks, _, err := client.TranscoderTasks.List(ctx)
 	if err != nil {
 		t.Errorf("TranscoderTasks.List returned error: %v", err)
 	}
@@ -94,8 +94,8 @@ func TestTranscoderTasksList(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(root.Tasks, expected) {
-		t.Errorf("TranscoderTasks.List = %v, expected %v", root.Tasks, expected)
+	if !reflect.DeepEqual(tasks, expected) {
+		t.Errorf("TranscoderTasks.List = %v, expected %v", tasks, expected)
 	}
 }
 

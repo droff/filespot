@@ -10,7 +10,7 @@ const transcoderTasksBasePath = "/1/transcoder_tasks"
 // TranscoderTasksService implements interface with API /transcoder_tasks endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#transcoder_tasks
 type TranscoderTasksService interface {
-	List(context.Context) (*tasksRoot, *http.Response, error)
+	List(context.Context) ([]Task, *http.Response, error)
 	Get(context.Context, string) (*Task, *http.Response, error)
 	HLS(context.Context, string) (*Task, *http.Response, error)
 	Delete(context.Context, string) (*http.Response, error)
@@ -22,7 +22,7 @@ type TranscoderTasksCli struct {
 }
 
 // List returns list of all transcoders tasks
-func (c TranscoderTasksCli) List(ctx context.Context) (*tasksRoot, *http.Response, error) {
+func (c TranscoderTasksCli) List(ctx context.Context) ([]Task, *http.Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodGet, transcoderTasksBasePath, nil)
 	if err != nil {
 		return nil, nil, err
@@ -34,7 +34,7 @@ func (c TranscoderTasksCli) List(ctx context.Context) (*tasksRoot, *http.Respons
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Tasks, resp, err
 }
 
 // Get Task
