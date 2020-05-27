@@ -19,9 +19,9 @@ import (
 
 const (
 	packageVersion = "1.0.0"
-	UserAgent      = "platformcraft-filesport/" + packageVersion
+	userAgent      = "platformcraft-filesport/" + packageVersion
 	mediaType      = "application/json"
-	APIBaseURL     = "https://api.platformcraft.ru/1/"
+	defaultAPIURL  = "https://api.platformcraft.ru/1/"
 )
 
 // Client manages communication with platformcraft API
@@ -58,13 +58,13 @@ type ErrorResponse struct {
 }
 
 // NewClient returns client API
-func NewClient(apiUserId, apiUserKey string) *Client {
-	baseURL, _ := url.Parse(APIBaseURL)
+func NewClient(apiUserID, apiUserKey string) *Client {
+	baseURL, _ := url.Parse(defaultAPIURL)
 
 	c := &Client{
 		client:     http.DefaultClient,
-		UserAgent:  UserAgent,
-		APIUserID:  apiUserId,
+		UserAgent:  userAgent,
+		APIUserID:  apiUserID,
 		APIUserKey: apiUserKey,
 		BaseURL:    baseURL,
 	}

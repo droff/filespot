@@ -17,7 +17,7 @@ const objectsBasePath = "/1/objects"
 // ObjectsService implements interface with API /objects endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#objects
 type ObjectsService interface {
-	List(context.Context, interface{}) (*objectsRoot, *http.Response, error)
+	List(context.Context, interface{}) ([]Object, *http.Response, error)
 	Get(context.Context, string) (*Object, *http.Response, error)
 	Create(context.Context, *ObjectCreateRequest) (*Object, *http.Response, error)
 	Update(context.Context, string, *ObjectUpdateRequest) (*http.Response, error)
@@ -166,7 +166,7 @@ type ObjectsListParams struct {
 }
 
 // List returns list of all objects (files) in container
-func (c ObjectsCli) List(ctx context.Context, params interface{}) (*objectsRoot, *http.Response, error) {
+func (c ObjectsCli) List(ctx context.Context, params interface{}) ([]Object, *http.Response, error) {
 	path, err := addParams(objectsBasePath, params)
 	if err != nil {
 		return nil, nil, err
@@ -183,7 +183,7 @@ func (c ObjectsCli) List(ctx context.Context, params interface{}) (*objectsRoot,
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Objects, resp, err
 }
 
 // Get Object

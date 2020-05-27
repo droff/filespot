@@ -63,7 +63,7 @@ func TestObjectsList(t *testing.T) {
         }`)
 	})
 
-	root, _, err := client.Objects.List(ctx, nil)
+	objects, _, err := client.Objects.List(ctx, nil)
 	if err != nil {
 		t.Errorf("Objects.List returned error: %v", err)
 	}
@@ -103,8 +103,8 @@ func TestObjectsList(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(root.Objects, expected) {
-		t.Errorf("Objects.List = %v, expected %v", root.Objects, expected)
+	if !reflect.DeepEqual(objects, expected) {
+		t.Errorf("Objects.List = %v, expected %v", objects, expected)
 	}
 }
 

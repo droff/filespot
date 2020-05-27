@@ -40,14 +40,14 @@ func teardown() {
 }
 
 func testClientDefaultBaseURL(t *testing.T, c *Client) {
-	if c.BaseURL == nil || c.BaseURL.String() != APIBaseURL {
-		t.Errorf("NewClient BaseURL = %v, expected %v", c.BaseURL, APIBaseURL)
+	if c.BaseURL == nil || c.BaseURL.String() != defaultAPIURL {
+		t.Errorf("NewClient BaseURL = %v, expected %v", c.BaseURL, defaultAPIURL)
 	}
 }
 
 func testClientDefaultUserAgent(t *testing.T, c *Client) {
-	if c.UserAgent != UserAgent {
-		t.Errorf("NewClient UserAgent = %v, expected %v", c.UserAgent, UserAgent)
+	if c.UserAgent != userAgent {
+		t.Errorf("NewClient UserAgent = %v, expected %v", c.UserAgent, userAgent)
 	}
 }
 
