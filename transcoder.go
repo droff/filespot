@@ -40,6 +40,7 @@ type Preset struct {
 // presetsRoot represents a Presets root
 type presetsRoot struct {
 	Presets []Preset `json:"presets"`
+	Count   int      `json:"count"`
 }
 
 // TranscoderCreateRequest identifies params for the Create request

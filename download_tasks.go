@@ -35,6 +35,7 @@ type Task struct {
 // tasksRoot represents a List root
 type tasksRoot struct {
 	Tasks []Task `json:"tasks"`
+	Count int    `json:"count"`
 }
 
 // taskRoot represents a Get root
