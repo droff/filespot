@@ -69,13 +69,13 @@ func TestDownloadTasksList(t *testing.T) {
 		},
 	}
 
-	root, _, err := client.DownloadTasks.List(ctx)
+	tasks, _, err := client.DownloadTasks.List(ctx)
 	if err != nil {
 		t.Errorf("DownloadTasks.List returned error: %v", err)
 	}
 
-	if !reflect.DeepEqual(root.Tasks, expected) {
-		t.Errorf("DownloadTasks.List = %v, expected %v", root.Tasks, expected)
+	if !reflect.DeepEqual(tasks, expected) {
+		t.Errorf("DownloadTasks.List = %v, expected %v", tasks, expected)
 	}
 }
 

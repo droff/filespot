@@ -10,7 +10,7 @@ const downloadTasksBasePath = "/1/download_tasks"
 // DownloadTasksService implements interface with API /download_tasks endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#download_tasks
 type DownloadTasksService interface {
-	List(context.Context) (*tasksRoot, *http.Response, error)
+	List(context.Context) ([]Task, *http.Response, error)
 	Get(context.Context, string) (*Task, *http.Response, error)
 	Delete(context.Context, string) (*http.Response, error)
 }
@@ -44,7 +44,7 @@ type taskRoot struct {
 }
 
 // List of Tasks
-func (c DownloadTasksCli) List(ctx context.Context) (*tasksRoot, *http.Response, error) {
+func (c DownloadTasksCli) List(ctx context.Context) ([]Task, *http.Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodGet, downloadTasksBasePath, nil)
 	if err != nil {
 		return nil, nil, err
@@ -56,7 +56,7 @@ func (c DownloadTasksCli) List(ctx context.Context) (*tasksRoot, *http.Response,
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Tasks, resp, err
 }
 
 // Get Task
