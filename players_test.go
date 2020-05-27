@@ -55,7 +55,7 @@ func TestPlayersList(t *testing.T) {
 			Name:  "player_name_1",
 			Path:  "/player_name_1",
 			IsDir: false,
-			Videos: Videos{
+			Videos: videos{
 				"360": "cdn.platformcraft.ru/alex/example_360.mp4",
 				"480": "cdn.platformcraft.ru/alex/example_480.mp4",
 			},
@@ -65,18 +65,18 @@ func TestPlayersList(t *testing.T) {
 			Href:          "video.platformcraft.ru/embed/567d3643534b4474087c221e",
 			FrameTag:      "<iframe width=\"558\" height=\"264\" src=\"video.platformcraft.ru/embed/567d3643534b4474087c221e\" frameBorder=\"0\" scrolling=\"no\" allowFullScreen></iframe>",
 			Description:   "test player",
-			Tags:          Tags{},
+			Tags:          tags{},
 			Geo:           nil,
 		},
 	}
 
-	root, _, err := client.Players.List(ctx, nil)
+	players, _, err := client.Players.List(ctx, nil)
 	if err != nil {
 		t.Errorf("Players.List returned error: %v", err)
 	}
 
-	if !reflect.DeepEqual(root.Players, expected) {
-		t.Errorf("Players.List = %v, expected %v", root.Players, expected)
+	if !reflect.DeepEqual(players, expected) {
+		t.Errorf("Players.List = %v, expected %v", players, expected)
 	}
 }
 
@@ -119,7 +119,7 @@ func TestPlayersGet(t *testing.T) {
 		Name:  "player_name_1",
 		Path:  "/player_name_1",
 		IsDir: false,
-		Videos: Videos{
+		Videos: videos{
 			"360": "cdn.platformcraft.ru/alex/example_360.mp4",
 			"480": "cdn.platformcraft.ru/alex/example_480.mp4",
 		},
@@ -129,7 +129,7 @@ func TestPlayersGet(t *testing.T) {
 		Href:          "video.platformcraft.ru/embed/567d3643534b4474087c221e",
 		FrameTag:      "<iframe width=\"558\" height=\"264\" src=\"video.platformcraft.ru/embed/567d3643534b4474087c221e\" frameBorder=\"0\" scrolling=\"no\" allowFullScreen></iframe>",
 		Description:   "test player",
-		Tags:          Tags{},
+		Tags:          tags{},
 		Geo:           nil,
 	}
 
@@ -182,7 +182,7 @@ func TestPlayersCreate(t *testing.T) {
 		Name:  "player_name",
 		Path:  "/test/player_name",
 		IsDir: false,
-		Videos: Videos{
+		Videos: videos{
 			"360": "cdn.platformcraft.ru/alex/example_360.mp4",
 			"480": "cdn.platformcraft.ru/alex/example_480.mp4",
 		},
@@ -192,7 +192,7 @@ func TestPlayersCreate(t *testing.T) {
 		Href:          "video.platformcraft.ru/embed/567d3643534b4474087c221d",
 		FrameTag:      "<iframe width=\"558\" height=\"264\" src=\"video.platformcraft.ru/embed/567d3643534b4474087c221d\" frameBorder=\"0\" scrolling=\"no\" allowFullScreen></iframe>",
 		Description:   "test description",
-		Tags:          Tags{"tag1", "tag2"},
+		Tags:          tags{"tag1", "tag2"},
 		Geo: Geo{
 			"EU": {
 				"RU": true,
@@ -203,14 +203,14 @@ func TestPlayersCreate(t *testing.T) {
 	playerCreateRequest := &PlayerCreateRequest{
 		Name:   "player_name",
 		Folder: "/test",
-		Videos: Videos{
+		Videos: videos{
 			"360": "566bf3e9534b447f07e2baef",
 			"480": "5624cd5ac9a492f8b979b63f",
 		},
 		ScreenShotID: "56238961c9a492f8b979b633",
 		VastAdTagURL: "http://example.com/example-vast.xml",
 		Description:  "test description",
-		Tags:         Tags{"tag1", "tag2"},
+		Tags:         tags{"tag1", "tag2"},
 		Geo: Geo{
 			"EU": {
 				"RU": true,

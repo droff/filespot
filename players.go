@@ -10,7 +10,7 @@ const playersBasePath = "/1/players"
 // PlayersService implements interface with API /players endpoint.
 // See https://doc.platformcraft.ru/filespot/api/en/#players
 type PlayersService interface {
-	List(context.Context, interface{}) (*playersRoot, *http.Response, error)
+	List(context.Context, interface{}) ([]Player, *http.Response, error)
 	Get(context.Context, string) (*Player, *http.Response, error)
 	Create(context.Context, *PlayerCreateRequest) (*Player, *http.Response, error)
 	Update(context.Context, string, *PlayerUpdateRequest) (*http.Response, error)
@@ -28,19 +28,19 @@ type Player struct {
 	Name          string `json:"name"`
 	Path          string `json:"path"`
 	IsDir         bool   `json:"is_dir"`
-	Videos        Videos `json:"videos"`
+	Videos        videos `json:"videos"`
 	ScreenShotURL string `json:"screen_shot_url"`
 	VastAdTagURL  string `json:"vast_ad_tag_url"`
 	CreateDate    string `json:"create_date"`
 	Href          string `json:"href"`
 	FrameTag      string `json:"frame_tag"`
 	Description   string `json:"description"`
-	Tags          Tags   `json:"tags"`
+	Tags          tags   `json:"tags"`
 	Geo           Geo    `json:"geo"`
 }
 
-type Videos map[string]string
-type Tags []string
+type videos map[string]string
+type tags []string
 
 // playersRoot respresents a List root
 type playersRoot struct {
@@ -59,11 +59,11 @@ type playerRoot struct {
 type PlayerCreateRequest struct {
 	Name         string `json:"name"`
 	Folder       string `json:"folder"`
-	Videos       Videos `json:"videos"`
+	Videos       videos `json:"videos"`
 	ScreenShotID string `json:"screen_shot_id"`
 	VastAdTagURL string `json:"vast_ad_tag_url"`
 	Description  string `json:"description"`
-	Tags         Tags   `json:"tags"`
+	Tags         tags   `json:"tags"`
 	Geo          Geo    `json:"geo"`
 }
 
@@ -71,15 +71,15 @@ type PlayerCreateRequest struct {
 type PlayerUpdateRequest struct {
 	Name         string `json:"name"`
 	Folder       string `json:"folder"`
-	Videos       Videos `json:"videos"`
+	Videos       videos `json:"videos"`
 	ScreenShotID string `json:"screen_shot_id"`
 	Description  string `json:"description"`
-	Tags         Tags   `json:"tags"`
+	Tags         tags   `json:"tags"`
 	Geo          Geo    `json:"geo"`
 }
 
 // List of Players
-func (c PlayersCli) List(ctx context.Context, params interface{}) (*playersRoot, *http.Response, error) {
+func (c PlayersCli) List(ctx context.Context, params interface{}) ([]Player, *http.Response, error) {
 	path, err := addParams(playersBasePath, params)
 	if err != nil {
 		return nil, nil, err
@@ -96,7 +96,7 @@ func (c PlayersCli) List(ctx context.Context, params interface{}) (*playersRoot,
 		return nil, resp, err
 	}
 
-	return data, resp, err
+	return data.Players, resp, err
 }
 
 // Get Player
